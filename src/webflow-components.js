@@ -1,6 +1,6 @@
 /*!
  * Webflow Component Library
- * https://github.com/YOUR-USERNAME/webflow-component-library
+ * https://github.com/Hradeco999/webflow-component-library
  * Licensed under the MIT License.
  * Independent community project; not affiliated with Webflow, Inc.
  */
@@ -77,6 +77,8 @@
     });
   }
 
+  var accordionId = 0;
+
   function initAccordions(root) {
     var groups = (root || document).querySelectorAll(SELECTORS.accordion);
 
@@ -89,11 +91,12 @@
       var panels = Array.from(group.querySelectorAll(SELECTORS.accordionPanel));
 
       triggers.forEach(function (trigger, index) {
-        var panel = panels[index];
+        var panelId = trigger.getAttribute("aria-controls");
+        var panel = panelId ? panels.find(function (candidate) { return candidate.id === panelId; }) : panels[index];
         if (!panel) return;
 
         if (!panel.id) {
-          panel.id = "wf-accordion-panel-" + Math.random().toString(36).slice(2, 10) + "-" + index;
+          panel.id = "wf-accordion-panel-" + (++accordionId);
         }
         trigger.setAttribute("aria-controls", panel.id);
         trigger.setAttribute("aria-expanded", String(!panel.hidden));
@@ -103,7 +106,8 @@
 
           if (!allowMultiple && shouldOpen) {
             triggers.forEach(function (otherTrigger) {
-              var otherPanel = panels[triggers.indexOf(otherTrigger)];
+              var otherId = otherTrigger.getAttribute("aria-controls");
+              var otherPanel = panels.find(function (candidate) { return candidate.id === otherId; });
               if (!otherPanel || otherPanel === panel) return;
               otherPanel.hidden = true;
               otherTrigger.setAttribute("aria-expanded", "false");
@@ -130,7 +134,13 @@
       button.addEventListener("click", async function () {
         var value = button.getAttribute("data-wf-copy-value");
         var targetSelector = button.getAttribute("data-wf-copy");
-        var target = targetSelector && targetSelector !== "" ? document.querySelector(targetSelector) : null;
+        var target = null;
+        try {
+          if (targetSelector) target = document.querySelector(targetSelector);
+        } catch (error) {
+          button.dispatchEvent(new CustomEvent("wf-copy-error", { detail: error }));
+          return;
+        }
 
         if (value === null && target) value = target.textContent;
         if (value === null || value === undefined) return;
@@ -165,9 +175,12 @@
     });
   }
 
+  var progressListening = false;
+
   function initProgress(root) {
     var bars = (root || document).querySelectorAll(SELECTORS.progress);
-    if (!bars.length) return;
+    if (!bars.length || progressListening) return;
+    progressListening = true;
 
     var ticking = false;
 
@@ -176,7 +189,7 @@
       var maxScroll = doc.scrollHeight - window.innerHeight;
       var progress = maxScroll > 0 ? Math.min(100, Math.max(0, (window.scrollY / maxScroll) * 100)) : 0;
 
-      bars.forEach(function (bar) {
+      document.querySelectorAll(SELECTORS.progress).forEach(function (bar) {
         bar.style.width = progress.toFixed(2) + "%";
         bar.setAttribute("aria-valuenow", String(Math.round(progress)));
       });
