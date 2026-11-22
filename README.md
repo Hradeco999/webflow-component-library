@@ -65,6 +65,7 @@ Create a wrapper around the controls and CMS Collection List. Add `data-wf-filte
 - `data-wf-category` accepts one category or comma-separated categories.
 - Category matching is case-insensitive.
 - The `all` filter is always available.
+- Prefer native `<button type="button">` controls. A link-style Webflow fallback is supported with button semantics and keyboard handling, but native buttons are more robust.
 - Search checks the item's visible text content.
 - In Webflow, place the attributes on the corresponding native elements. For CMS items, bind category values with CMS-connected custom attributes where appropriate.
 
@@ -98,7 +99,7 @@ Use a button followed by its panel. The script manages `aria-expanded`, `aria-co
 </div>
 ```
 
-Set `data-wf-accordion="multiple"` to allow multiple open panels. The default is `single`.
+Set `data-wf-accordion="multiple"` to allow multiple open panels. The default is `single`. To match triggers to panels independently of DOM ordering, set `aria-controls="panel-id"` on the trigger and `id="panel-id"` on its panel.
 
 ## 3. Copy to clipboard
 
@@ -162,7 +163,7 @@ No install step is required for the browser library.
 node --test
 ```
 
-The tests use Node's built-in test runner. Browser interaction tests should be added as the components mature.
+The tests use Node's built-in test runner. See [the testing guide](docs/testing.md) for the current coverage and manual Webflow QA checklist. End-to-end browser testing is not yet automated.
 
 ## Contributing
 
