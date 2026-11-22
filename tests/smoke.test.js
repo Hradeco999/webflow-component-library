@@ -53,7 +53,7 @@ test('filter initializes an empty group without errors', () => {
     setAttribute(name, value) { attrs[name] = value; }
   };
   const { window } = loadLibrary({ elements: { '[data-wf-filter-group]': [group] } });
-  assert.equal(group.dataset.wfInitialized, 'true');
+  assert.equal(group.dataset.wfFilterInitialized, 'true');
   assert.equal(attrs['data-wf-visible-count'], '0');
   assert.doesNotThrow(() => window.WebflowComponents.init());
 });
@@ -114,4 +114,54 @@ test('reading progress listeners are registered only once on repeated init', () 
   assert.equal(counts.scroll, 1);
   assert.equal(counts.resize, 1);
   assert.equal(bar.style.width, '50.00%');
+});
+
+test('a link-style filter supports keyboard activation and prevents navigation', () => {
+  const listeners = {};
+  const attrs = { 'data-wf-filter': 'design' };
+  const button = {
+    tagName: 'A', dataset: {},
+    getAttribute(name) { return attrs[name] ?? null; },
+    hasAttribute(name) { return Object.hasOwn(attrs, name); },
+    setAttribute(name, value) { attrs[name] = value; },
+    addEventListener(name, fn) { listeners[name] = fn; }
+  };
+  const item = {
+    textContent: 'Design systems', hidden: false,
+    getAttribute(name) { return name === 'data-wf-category' ? 'design' : null; }
+  };
+  const group = {
+    dataset: {},
+    querySelectorAll(selector) {
+      if (selector === '[data-wf-filter]') return [button];
+      if (selector === '[data-wf-filter-item]') return [item];
+      return [];
+    },
+    querySelector() { return null; },
+    setAttribute() {}
+  };
+  loadLibrary({ elements: { '[data-wf-filter-group]': [group] } });
+  assert.equal(attrs.role, 'button');
+  assert.equal(attrs.tabindex, '0');
+  let prevented = false;
+  listeners.keydown({ key: ' ', preventDefault() { prevented = true; } });
+  assert.equal(prevented, true);
+  assert.equal(attrs['aria-pressed'], 'true');
+  assert.equal(item.hidden, false);
+});
+
+test('link-style controls prevent click navigation', () => {
+  const listeners = {};
+  const button = {
+    tagName: 'A', dataset: {},
+    getAttribute(name) { return name === 'data-wf-copy-value' ? 'hello' : null; },
+    hasAttribute() { return false; },
+    setAttribute() {},
+    addEventListener(name, fn) { listeners[name] = fn; },
+    textContent: 'Copy'
+  };
+  loadLibrary({ elements: { '[data-wf-copy]': [button] } });
+  let prevented = false;
+  listeners.click({ preventDefault() { prevented = true; } });
+  assert.equal(prevented, true);
 });
