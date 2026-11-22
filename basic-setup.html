@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Webflow Component Library — examples</title>
+  <style>
+    body { max-width: 760px; margin: 4rem auto; padding: 0 1.25rem; font: 16px/1.6 system-ui, sans-serif; color: #202321; }
+    button, input { font: inherit; padding: .65rem .85rem; }
+    button { cursor: pointer; border: 1px solid #aaa; border-radius: 6px; background: white; margin: .2rem; }
+    button[aria-pressed="true"] { background: #e7f2ee; border-color: #26745d; }
+    [data-wf-filter-item], [data-wf-accordion-panel] { padding: .75rem; border-bottom: 1px solid #ddd; }
+    [data-wf-reading-progress] { position: fixed; inset: 0 auto auto 0; height: 4px; background: #26745d; z-index: 10; }
+    [hidden] { display: none !important; }
+    :focus-visible { outline: 2px solid #26745d; outline-offset: 3px; }
+  </style>
+</head>
+<body>
+  <div data-wf-reading-progress role="progressbar" aria-label="Reading progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
+  <h1>Webflow Component Library</h1>
+
+  <section data-wf-filter-group>
+    <h2>CMS filter + search</h2>
+    <button type="button" data-wf-filter="all" aria-pressed="true">All</button>
+    <button type="button" data-wf-filter="design" aria-pressed="false">Design</button>
+    <button type="button" data-wf-filter="development" aria-pressed="false">Development</button>
+    <p><input type="search" data-wf-filter-search placeholder="Search examples" aria-label="Search examples"></p>
+    <div data-wf-filter-list>
+      <article data-wf-filter-item data-wf-category="design"><strong>Design systems</strong><p>Tokens, components and consistency.</p></article>
+      <article data-wf-filter-item data-wf-category="development"><strong>Custom JavaScript</strong><p>Small enhancements for Webflow sites.</p></article>
+      <article data-wf-filter-item data-wf-category="design,development"><strong>Accessible UI</strong><p>Patterns that work for more people.</p></article>
+    </div>
+    <p data-wf-filter-empty hidden>No matching items found.</p>
+  </section>
+
+  <section data-wf-accordion="single">
+    <h2>Accordion</h2>
+    <div>
+      <h3><button type="button" data-wf-accordion-trigger aria-expanded="false">How does it work?</button></h3>
+      <div data-wf-accordion-panel hidden><p>It uses native buttons, ARIA state and the hidden attribute.</p></div>
+    </div>
+    <div>
+      <h3><button type="button" data-wf-accordion-trigger aria-expanded="false">Does it need a dependency?</button></h3>
+      <div data-wf-accordion-panel hidden><p>No. The browser library is dependency-free.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Copy to clipboard</h2>
+    <code id="sample-code">console.log("Hello Webflow");</code>
+    <button type="button" data-wf-copy="#sample-code" data-wf-copy-success="Copied!">Copy code</button>
+  </section>
+
+  <script src="../src/webflow-components.js" defer></script>
+</body>
+</html>
