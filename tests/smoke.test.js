@@ -158,7 +158,8 @@ test('link-style controls prevent click navigation', () => {
     hasAttribute() { return false; },
     setAttribute() {},
     addEventListener(name, fn) { listeners[name] = fn; },
-    textContent: 'Copy'
+    textContent: 'Copy',
+    dispatchEvent() {}
   };
   loadLibrary({ elements: { '[data-wf-copy]': [button] } });
   let prevented = false;
