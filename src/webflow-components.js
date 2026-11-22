@@ -33,7 +33,7 @@
       (element.tagName === "INPUT" && /^(button|submit|reset)$/i.test(element.type));
     if (!nativeButton) {
       element.setAttribute("role", "button");
-      if (!element.hasAttribute("tabindex")) element.setAttribute("tabindex", "0");
+      if (!element.hasAttribute || !element.hasAttribute("tabindex")) element.setAttribute("tabindex", "0");
       element.addEventListener("keydown", function (event) {
         if (event.key !== "Enter" && event.key !== " ") return;
         event.preventDefault();
