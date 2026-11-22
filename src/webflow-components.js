@@ -26,12 +26,32 @@
     return String(value || "").trim().toLocaleLowerCase();
   }
 
+  // Webflow integrations may render controls as links. Make those
+  // controls keyboard-operable without changing native button behavior.
+  function bindControl(element, action) {
+    var nativeButton = element.tagName === "BUTTON" ||
+      (element.tagName === "INPUT" && /^(button|submit|reset)$/i.test(element.type));
+    if (!nativeButton) {
+      element.setAttribute("role", "button");
+      if (!element.hasAttribute("tabindex")) element.setAttribute("tabindex", "0");
+      element.addEventListener("keydown", function (event) {
+        if (event.key !== "Enter" && event.key !== " ") return;
+        event.preventDefault();
+        action();
+      });
+    }
+    element.addEventListener("click", function (event) {
+      if (event && event.preventDefault && !nativeButton) event.preventDefault();
+      action();
+    });
+  }
+
   function initFilters(root) {
     var groups = (root || document).querySelectorAll(SELECTORS.filterGroup);
 
     groups.forEach(function (group) {
-      if (group.dataset.wfInitialized === "true") return;
-      group.dataset.wfInitialized = "true";
+      if (group.dataset.wfFilterInitialized === "true") return;
+      group.dataset.wfFilterInitialized = "true";
 
       var buttons = Array.from(group.querySelectorAll(SELECTORS.filterButton));
       var items = Array.from(group.querySelectorAll(SELECTORS.filterItem));
@@ -66,7 +86,7 @@
       }
 
       buttons.forEach(function (button) {
-        button.addEventListener("click", function () {
+        bindControl(button, function () {
           activeCategory = normalize(button.getAttribute("data-wf-filter")) || "all";
           update();
         });
@@ -83,8 +103,8 @@
     var groups = (root || document).querySelectorAll(SELECTORS.accordion);
 
     groups.forEach(function (group) {
-      if (group.dataset.wfInitialized === "true") return;
-      group.dataset.wfInitialized = "true";
+      if (group.dataset.wfAccordionInitialized === "true") return;
+      group.dataset.wfAccordionInitialized = "true";
 
       var allowMultiple = normalize(group.getAttribute("data-wf-accordion")) === "multiple";
       var triggers = Array.from(group.querySelectorAll(SELECTORS.accordionTrigger));
@@ -101,7 +121,7 @@
         trigger.setAttribute("aria-controls", panel.id);
         trigger.setAttribute("aria-expanded", String(!panel.hidden));
 
-        trigger.addEventListener("click", function () {
+        bindControl(trigger, function () {
           var shouldOpen = panel.hidden;
 
           if (!allowMultiple && shouldOpen) {
@@ -125,13 +145,13 @@
     var buttons = (root || document).querySelectorAll(SELECTORS.copy);
 
     buttons.forEach(function (button) {
-      if (button.dataset.wfInitialized === "true") return;
-      button.dataset.wfInitialized = "true";
+      if (button.dataset.wfCopyInitialized === "true") return;
+      button.dataset.wfCopyInitialized = "true";
 
       var originalLabel = button.textContent;
       var successLabel = button.getAttribute("data-wf-copy-success") || "Copied!";
 
-      button.addEventListener("click", async function () {
+      bindControl(button, async function () {
         var value = button.getAttribute("data-wf-copy-value");
         var targetSelector = button.getAttribute("data-wf-copy");
         var target = null;
